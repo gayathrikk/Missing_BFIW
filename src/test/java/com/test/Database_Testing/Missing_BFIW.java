@@ -11,7 +11,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class Missing_BFIW{
+public class Missing_BFI {
 
     private Connection conn;
     private static final String URL = "jdbc:mysql://apollo2.humanbrain.in:3306/HBA_V2";
@@ -43,29 +43,27 @@ public class Missing_BFIW{
         Set<Integer> retrievedIndexes = new HashSet<>();
         int actualEndIndex = 0;
         int missingCount = 0;
-        int gapThreshold = 50;
 
         try {
+            // Get all position indexes sorted
             String query = "SELECT positionindex FROM section WHERE jp2Path LIKE ? ORDER BY positionindex ASC";
             try (PreparedStatement stmt = conn.prepareStatement(query)) {
-                stmt.setString(1, "%/" + biosampleid + "/BFIW/%");  // <-- Updated folder name
+                stmt.setString(1, "%/" + biosampleid + "/BFIW/%");
                 try (ResultSet rs = stmt.executeQuery()) {
-                    int prev = 0;
                     while (rs.next()) {
                         int current = rs.getInt("positionindex");
-                        retrievedIndexes.add(current);
 
-                        if (prev != 0 && current - prev >= gapThreshold) {
-                            actualEndIndex = prev;
-                            break;
+                        if (current < 10000) {  // Ignore dummy values 10000 and above
+                            retrievedIndexes.add(current);
+                            if (current > actualEndIndex) {
+                                actualEndIndex = current; // Update max only if less than 10000
+                            }
                         }
-
-                        prev = current;
-                        actualEndIndex = current;
                     }
                 }
             }
 
+            // Print missing indexes
             System.out.println("Missing position indexes (up to " + actualEndIndex + "):");
             for (int i = 1; i <= actualEndIndex; i++) {
                 if (!retrievedIndexes.contains(i)) {
