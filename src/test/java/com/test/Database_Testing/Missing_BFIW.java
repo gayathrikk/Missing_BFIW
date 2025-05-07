@@ -11,7 +11,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class Missing_BFI {
+public class Missing_BFIW {
 
     private Connection conn;
     private static final String URL = "jdbc:mysql://apollo2.humanbrain.in:3306/HBA_V2";
